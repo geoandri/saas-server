@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:11.13:///saas-db
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/test-liquibase-changelog.xml

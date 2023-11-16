@@ -1,0 +1,29 @@
+
+#logging:
+#  level:
+#    org.springframework.security: trace
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/saas-db?LoggerLevel=DEBUG
+    username: dummyUser
+    password: dummyPassword
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        types:
+          print:
+            banner: false
+    hibernate:
+      dll-auto: validate
+    open-in-view: false
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080

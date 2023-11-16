@@ -1,0 +1,17 @@
+services:
+  database:
+    image: postgres:15
+    container_name: saas-db
+    restart: on-failure
+    healthcheck:
+      test: "pg_isready --username=dummyUser -d saas-db -q"
+      timeout: 10s
+      retries: 20
+    volumes:
+      - ./db-data/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: 'saas-db'
+      POSTGRES_USER: 'dummyUser'
+      POSTGRES_PASSWORD: 'dummyPassword'
+    ports:
+      - '5432:5432'

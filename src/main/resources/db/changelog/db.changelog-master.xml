@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="0" author="geoandri">
+        <sql>
+            CREATE TABLE client (
+                                    id varchar(255) NOT NULL,
+                                    clientId varchar(255) NOT NULL,
+                                    clientIdIssuedAt timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                                    clientSecret varchar(255) DEFAULT NULL,
+                                    clientSecretExpiresAt timestamp DEFAULT NULL,
+                                    clientName varchar(255) NOT NULL,
+                                    clientAuthenticationMethods varchar(1000) NOT NULL,
+                                    authorizationGrantTypes varchar(1000) NOT NULL,
+                                    redirectUris varchar(1000) DEFAULT NULL,
+                                    postLogoutRedirectUris varchar(1000) DEFAULT NULL,
+                                    scopes varchar(1000) NOT NULL,
+                                    clientSettings varchar(2000) NOT NULL,
+                                    tokenSettings varchar(2000) NOT NULL,
+                                    PRIMARY KEY (id)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="1" author="geoandri">
+        <sql>
+            CREATE TABLE "authorization" (
+                                           id varchar(255) NOT NULL,
+                                           registeredClientId varchar(255) NOT NULL,
+                                           principalName varchar(255) NOT NULL,
+                                           authorizationGrantType varchar(255) NOT NULL,
+                                           authorizedScopes varchar(1000) DEFAULT NULL,
+                                           attributes varchar(4000) DEFAULT NULL,
+                                           state varchar(500) DEFAULT NULL,
+                                           authorizationCodeValue varchar(4000) DEFAULT NULL,
+                                           authorizationCodeIssuedAt timestamp DEFAULT NULL,
+                                           authorizationCodeExpiresAt timestamp DEFAULT NULL,
+                                           authorizationCodeMetadata varchar(2000) DEFAULT NULL,
+                                           accessTokenValue varchar(4000) DEFAULT NULL,
+                                           accessTokenIssuedAt timestamp DEFAULT NULL,
+                                           accessTokenExpiresAt timestamp DEFAULT NULL,
+                                           accessTokenMetadata varchar(2000) DEFAULT NULL,
+                                           accessTokenType varchar(255) DEFAULT NULL,
+                                           accessTokenScopes varchar(1000) DEFAULT NULL,
+                                           refreshTokenValue varchar(4000) DEFAULT NULL,
+                                           refreshTokenIssuedAt timestamp DEFAULT NULL,
+                                           refreshTokenExpiresAt timestamp DEFAULT NULL,
+                                           refreshTokenMetadata varchar(2000) DEFAULT NULL,
+                                           oidcIdTokenValue varchar(4000) DEFAULT NULL,
+                                           oidcIdTokenIssuedAt timestamp DEFAULT NULL,
+                                           oidcIdTokenExpiresAt timestamp DEFAULT NULL,
+                                           oidcIdTokenMetadata varchar(2000) DEFAULT NULL,
+                                           oidcIdTokenClaims varchar(2000) DEFAULT NULL,
+                                           userCodeValue varchar(4000) DEFAULT NULL,
+                                           userCodeIssuedAt timestamp DEFAULT NULL,
+                                           userCodeExpiresAt timestamp DEFAULT NULL,
+                                           userCodeMetadata varchar(2000) DEFAULT NULL,
+                                           deviceCodeValue varchar(4000) DEFAULT NULL,
+                                           deviceCodeIssuedAt timestamp DEFAULT NULL,
+                                           deviceCodeExpiresAt timestamp DEFAULT NULL,
+                                           deviceCodeMetadata varchar(2000) DEFAULT NULL,
+                                           PRIMARY KEY (id)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="2" author="geoandri">
+        <sql>
+            CREATE TABLE authorization_consent (
+                                                  registeredClientId varchar(255) NOT NULL,
+                                                  principalName varchar(255) NOT NULL,
+                                                  authorities varchar(1000) NOT NULL,
+                                                  PRIMARY KEY (registeredClientId, principalName)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="3" author="geoandri">
+        <sql>
+            create table companies(id uuid constraint companies_pk primary key, name text not null constraint unique_company_name unique);
+            create table if not exists public.users
+            (
+                id        uuid         not null primary key,
+                username   varchar(50)  not null
+                unique,
+                password   varchar(500) not null,
+                enabled    boolean      not null,
+                first_name text not null,
+                last_name  text not null,
+                email      text not null constraint unique_user_email unique,
+                company_id uuid not null
+                constraint users_companies_fk
+                references public.companies,
+                account_non_expired boolean not null default true,
+                account_non_locked boolean not null default true,
+                credentials_non_expired boolean not null default true
+                );
+            create table authorities (username varchar(50) not null,authority varchar(50) not null,constraint fk_authorities_users foreign key(username) references users(username));
+            create unique index ix_auth_username on authorities (username,authority);
+        </sql>
+    </changeSet>
+    <changeSet id="4" author="geoandri">
+        <sql>
+            insert into companies (id, name) values ('11111111-1111-1111-1111-111111111111','Geoandri');
+            insert into users (id, username, password, enabled, first_name, last_name, email, company_id)
+                values ('11111111-1111-1111-1111-111111111111', 'admin', '$2a$10$I2ohQl1ej9KZ749jnuIb2.EVtjd.SMqym5WBu/5l6h8.zSdi4s5ci',
+                        true, 'Admin', 'Admin', 'admin@geoandri.org', '11111111-1111-1111-1111-111111111111'),
+                       ('11111111-1111-1111-1111-111111111112', 'user', '$2a$10$I2ohQl1ej9KZ749jnuIb2.EVtjd.SMqym5WBu/5l6h8.zSdi4s5ci',
+                        true, 'User', 'User', 'user@geoandri.org', '11111111-1111-1111-1111-111111111111');
+            insert into authorities (username, authority) values ('admin', 'SUPER_ADMIN');
+            insert into authorities (username, authority) values ('user', 'USER');
+        </sql>
+    </changeSet>
+    <changeSet id="5" author="geoandri">
+        <createTable tableName="registration_verification_tokens">
+            <column name="token" type="uuid">
+                <constraints primaryKey="true" nullable="false" unique="true"></constraints>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </createTable>
+    </changeSet>
+    <changeSet id="6" author="geoandri">
+        <createTable tableName="password_reset_verification_tokens">
+            <column name="token" type="uuid">
+                <constraints primaryKey="true" nullable="false" unique="true"></constraints>
+            </column>
+            <column name="user_id" type="uuid">
+                <constraints nullable="false"></constraints>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </createTable>
+    </changeSet>
+    <changeSet id="7" author="geoandri">
+        <createProcedure>
+            CREATE OR REPLACE FUNCTION update_modified_column() RETURNS trigger
+			LANGUAGE plpgsql
+			AS $$
+            BEGIN
+			NEW.updated_at := CURRENT_TIMESTAMP;
+            RETURN NEW;
+            END;
+			$$;
+        </createProcedure>
+        <comment>Creates a procedure for auto updating the updated_at timestamp</comment>
+    </changeSet>
+    <changeSet id="8" author="geoandri">
+        <addColumn tableName="users">
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </addColumn>
+        <addColumn tableName="users">
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"></column>
+        </addColumn>
+        <sql>
+            CREATE TRIGGER users_update_trig BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_modified_column();
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
