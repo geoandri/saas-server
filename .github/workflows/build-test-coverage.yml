@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - src/**
+      - build.gradle.kts
     workflow_dispatch:
 
 jobs:
