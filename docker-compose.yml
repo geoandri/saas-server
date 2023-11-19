@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgres:15
+    image: postgres:16
     container_name: saas-db
     restart: on-failure
     healthcheck:
