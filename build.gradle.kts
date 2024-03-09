@@ -29,7 +29,7 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	testImplementation("org.testcontainers:postgresql:1.19.6")
+	testImplementation("org.testcontainers:postgresql:1.19.7")
 }
 
 tasks.withType<Test> {
